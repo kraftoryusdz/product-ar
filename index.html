@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kraftory PH</title>
     <link rel="icon" type="image/png" href="favicon.png" sizes="512x512">
     <style>
@@ -27,29 +26,24 @@
             height: auto;
             margin-bottom: 20px;
         }
-        @media (min-width: 768px) {
-            .logo {
-                max-width: 500px;
-            }
-        }
-        .button {
-            background-color: #000;
-            color: white;
-            padding: 15px 30px;
-            font-size: 1.2em;
+        button {
+            padding: 15px 25px;
+            font-size: 18px;
+            cursor: pointer;
             border: none;
             border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
+            background-color: #ff7f50;
+            color: white;
         }
-        .button:hover {
-            background-color: #333;
+        button:hover {
+            background-color: #ff6330;
         }
     </style>
 </head>
 <body>
     <img src="logo.png" alt="Kraftory PH Logo" class="logo">
-    <h1>View our products right in your space — see how they look and fit in your home or office before you buy.</h1>
-    <button class="button" onclick="window.location.href='scanner/index.html'">📷 Click to Scan QR Code</button>
+    <h1>View our products right in your space — see how they look and fit before you buy.</h1>
+    <p>Scan the QR code from your product to view it in AR.</p>
+    <button onclick="location.href='scanner.html'">Click to Scan QR Code</button>
 </body>
 </html>
