@@ -15,6 +15,8 @@ body {
   align-items:center;
   height:100vh;
   background:#000;
+  color:#fff;
+  padding:10px;
 }
 .logo { max-width:200px; height:auto; margin:15px auto; }
 #reader { width:100%; max-width:400px; margin:auto; }
@@ -29,6 +31,11 @@ body {
   cursor:pointer;
 }
 .back-btn:hover { background:#e65c00; }
+.unsupported {
+  margin-top:50px;
+  font-size:1.1em;
+  color:#ffcc00;
+}
 </style>
 </head>
 <body>
@@ -38,14 +45,36 @@ body {
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
+// Detect iOS Safari
+function isIosSafari() {
+    const ua = window.navigator.userAgent;
+    const iOS = /iPad|iPhone|iPod/.test(ua);
+    const webkit = /WebKit/.test(ua);
+    const chrome = /CriOS/.test(ua); // Chrome on iOS
+    return iOS && webkit && !chrome;
+}
+
 const html5QrCode = new Html5Qrcode("reader");
 
 html5QrCode.start(
     { facingMode: "environment" },
     { fps: 10, qrbox: 250 },
     qrCodeMessage => {
-        // Redirect to USDZ file in root
-        window.location.href = qrCodeMessage;
+        if (isIosSafari()) {
+            // Redirect to USDZ file in root
+            window.location.href = qrCodeMessage;
+        } else {
+            // Show unsupported message and stop scanner
+            html5QrCode.stop().catch(err => console.error(err));
+            document.body.innerHTML = `
+                <img src="logo.png" class="logo" alt="Kraftory PH Logo">
+                <div class="unsupported">
+                    AR view is limited to iOS Safari.<br>
+                    Please use an iPhone or iPad with Safari to view products in AR.
+                </div>
+                <button class="back-btn" onclick="location.href='index.html'">⬅ Back</button>
+            `;
+        }
     },
     errorMessage => {}
 ).catch(err => console.error(err));
