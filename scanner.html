@@ -11,23 +11,29 @@
             color: white;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
             height: 100vh;
         }
         header {
+            background: rgba(0,0,0,0.85);
             padding: 10px;
-            background: rgba(0,0,0,0.8);
-            width: 100%;
             text-align: center;
+            flex: 0 0 auto;
         }
         header img {
             max-height: 50px;
+            height: auto;
+        }
+        #video-container {
+            flex: 1 1 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: black;
         }
         video {
             width: 100%;
-            height: auto;
-            background: #000;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -35,7 +41,9 @@
     <header>
         <img src="logo.png" alt="Kraftory PH Logo">
     </header>
-    <video id="qr-video"></video>
+    <div id="video-container">
+        <video id="qr-video"></video>
+    </div>
     <script type="module">
         import QrScanner from './scanner/qr-scanner.min.js';
         QrScanner.WORKER_PATH = './scanner/qr-scanner-worker.min.js';
@@ -43,7 +51,7 @@
         const video = document.getElementById('qr-video');
         const scanner = new QrScanner(video, result => {
             console.log('QR code detected:', result);
-            window.location.href = result; // Redirect to scanned link
+            window.location.href = result;
         }, {
             highlightScanRegion: true,
             highlightCodeOutline: true
