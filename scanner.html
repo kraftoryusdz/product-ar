@@ -34,7 +34,6 @@
         height: 100%;
         object-fit: cover;
     }
-    /* QR guide box */
     .qr-frame {
         position: absolute;
         top: 50%;
@@ -65,10 +64,12 @@
         console.log('QR code detected:', result);
         qrScanner.stop();
 
-        // Redirect to USDZ file
-        // If QR code contains just the file name (e.g. trials.usdz)
-        const fileName = result.trim();
-        window.location.href = `https://see.kraftoryph.com/product-ar/models/${fileName}`;
+        // If the QR code contains just the filename like "pot.usdz"
+        let fileName = result.trim();
+
+        // Redirect to USDZ in models folder
+        let redirectUrl = `https://see.kraftoryph.com/product-ar/models/${fileName}`;
+        window.location.href = redirectUrl;
     });
 
     qrScanner.start().catch(err => {
