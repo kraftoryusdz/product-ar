@@ -1,74 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Scanner - Kraftory PH</title>
-    <link rel="icon" type="image/png" href="favicon.png" sizes="512x512">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: black;
-            font-family: sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Header with logo */
-        .header {
-            flex: 0 0 auto;
-            background: rgba(255, 255, 255, 0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 6px;
-            box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-        .header img {
-            max-width: 160px; /* Adjust logo size */
-            height: auto;
-        }
-
-        /* Video full screen below header */
-        #qr-video {
-            flex: 1 1 auto;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            background: black;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Scanner - Kraftory PH</title>
+<style>
+    body {
+        margin: 0;
+        font-family: sans-serif;
+        background: black;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+    header {
+        background: rgba(255,255,255,0.8);
+        padding: 5px;
+        text-align: center;
+    }
+    header img {
+        max-height: 50px;
+        width: auto;
+    }
+    #scanner-container {
+        position: relative;
+        flex: 1;
+    }
+    video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    /* Scan box overlay */
+    .scan-box {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 60%;
+        height: 30%;
+        transform: translate(-50%, -50%);
+        border: 4px solid rgba(0, 255, 0, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        z-index: 5;
+    }
+</style>
 </head>
 <body>
 
-    <!-- Header with logo -->
-    <div class="header">
-        <img src="logo.png" alt="Kraftory PH Logo">
-    </div>
+<header>
+    <img src="logo.png" alt="Kraftory PH Logo">
+</header>
 
-    <!-- Video feed -->
+<div id="scanner-container">
     <video id="qr-video"></video>
+    <div class="scan-box"></div>
+</div>
 
-    <script type="module">
-        import QrScanner from './scanner/qr-scanner.min.js';
-        QrScanner.WORKER_PATH = './scanner/qr-scanner-worker.min.js';
-
-        const videoElem = document.getElementById('qr-video');
-
-        const scanner = new QrScanner(videoElem, result => {
-            console.log('QR code detected:', result);
-            window.location.href = result; // Redirect to URL in QR
-        });
-
-        scanner.start().catch(err => {
-            console.error(err);
-            alert('Camera access denied or not available.');
-        });
-    </script>
+<script type="module">
+    import QrScanner from './scanner/qr-scanner.min.js';
+    const video = document.getElementById('qr-video');
+    const scanner = new QrScanner(video, result => {
+        console.log('QR code detected:', result);
+        window.location.href = result; // Redirect to QR content
+    });
+    scanner.start();
+</script>
 
 </body>
 </html>
