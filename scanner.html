@@ -45,13 +45,15 @@ body {
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-// Detect iOS Safari
+// Stricter iOS Safari check
 function isIosSafari() {
     const ua = window.navigator.userAgent;
     const iOS = /iPad|iPhone|iPod/.test(ua);
-    const webkit = /WebKit/.test(ua);
-    const chrome = /CriOS/.test(ua); // Chrome on iOS
-    return iOS && webkit && !chrome;
+    const safari = /Safari/.test(ua);
+    const chrome = /CriOS/.test(ua);
+    const firefox = /FxiOS/.test(ua);
+    const edge = /EdgiOS/.test(ua);
+    return iOS && safari && !chrome && !firefox && !edge;
 }
 
 const html5QrCode = new Html5Qrcode("reader");
@@ -64,13 +66,13 @@ html5QrCode.start(
             // Redirect to USDZ file in root
             window.location.href = qrCodeMessage;
         } else {
-            // Show unsupported message and stop scanner
+            // Stop scanner and show unsupported message
             html5QrCode.stop().catch(err => console.error(err));
             document.body.innerHTML = `
                 <img src="logo.png" class="logo" alt="Kraftory PH Logo">
                 <div class="unsupported">
                     AR view is limited to iOS Safari.<br>
-                    Please use an iPhone or iPad with Safari to view products in AR.
+                    Please open this page on an iPhone or iPad using Safari to view products in AR.
                 </div>
                 <button class="back-btn" onclick="location.href='index.html'">⬅ Back</button>
             `;
