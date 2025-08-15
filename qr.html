@@ -25,6 +25,12 @@
     height:auto;
     margin-bottom:20px;
   }
+  #message {
+    display:flex;
+    flex-direction:column;
+    align-items:center; /* centers loader, progress, instruction */
+    width:100%;
+  }
   #loader {
     margin-top:15px;
     font-size:1em;
@@ -102,14 +108,14 @@ if (!usdFile) {
       Please scan a valid QR code.<br>– Kraftory PH
     </div>`;
 } else if (isiOS && isSafari) {
-  // iOS Safari: preload USDZ with minimum 10s landing
+  // iOS Safari: preload USDZ with minimum 5s landing
   let usdLoaded = false;
   let minTimePassed = false;
 
   setTimeout(() => {
     minTimePassed = true;
     if (usdLoaded) launchAR();
-  }, 10000); // 10 seconds minimum
+  }, 5000); // 5000 ms = 5 seconds
 
   const xhr = new XMLHttpRequest();
   xhr.open('GET', usdFile, true);
