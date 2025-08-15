@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kraftory PH - AR Viewer</title>
-<link rel="icon" type="image/png" href="favicon.png" sizes="512x512">
-
+<link rel="icon" href="favicon.png" sizes="512x512">
 <style>
   body {
     margin:0;
@@ -17,34 +16,49 @@
     text-align:center;
     min-height:100vh;
     background-color:#fff;
-    padding:20px;
     color:#333;
+    padding:20px;
   }
-
-  /* Centered logo */
   #landing-logo {
-    width: 200px;
-    max-width: 60%;
-    height: auto;
-    margin-bottom: 20px;
+    width:200px;
+    max-width:60%;
+    height:auto;
+    margin-bottom:20px;
   }
-
   #ar-instruction {
-    margin-top: 10px;
-    font-size: 1em;
-    color: #555;
+    margin-top:10px;
+    font-size:1em;
+    color:#555;
   }
-
   .unsupported {
     font-size:1.1em;
     line-height:1.6em;
     max-width:300px;
-    background: #f8f8f8;
+    background:#f8f8f8;
     border-radius:12px;
     padding:20px;
     box-shadow:0 4px 12px rgba(0,0,0,0.1);
   }
-
+  #loader {
+    margin-top:15px;
+    font-size:1em;
+    color:#777;
+  }
+  #progress-bar {
+    width: 80%;
+    max-width: 300px;
+    height: 12px;
+    background: #ddd;
+    border-radius: 6px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  #progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #ff6600;
+    transition: width 0.2s;
+  }
   button {
     margin-top:15px;
     padding:12px 24px;
@@ -56,76 +70,72 @@
     cursor:pointer;
     transition: background 0.2s;
   }
-  button:hover {
-    background-color:#e65c00;
-  }
+  button:hover { background-color:#e65c00; }
 </style>
-
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const usdFile = urlParams.get('file') || null;
-
-  function preloadUSDZ(file) {
-    if (!file) return;
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'fetch';
-    link.href = file;
-    link.type = 'model/vnd.usdz+zip';
-    document.head.appendChild(link);
-  }
-
-  function isIosSafari() {
-    const ua = navigator.userAgent;
-    const isiOS = /iPad|iPhone|iPod/.test(ua);
-    const isSafari = /Safari/.test(ua) && !(/CriOS|FxiOS|EdgiOS|Brave/i.test(ua));
-    return isiOS && isSafari;
-  }
-
-  if (usdFile) preloadUSDZ(usdFile);
-</script>
 </head>
 <body>
 
 <img src="logo.png" id="landing-logo" alt="Kraftory PH Logo">
-
 <div id="message">
-  <div id="loader">Preparing your product…</div>
+  <div id="loader">Loading your product…</div>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
 </div>
 
 <script>
-const messageDiv = document.getElementById('message');
+const urlParams = new URLSearchParams(window.location.search);
+const usdFile = urlParams.get('file') || null;
+
+// Check iOS Safari
+function isIosSafari() {
+  const ua = navigator.userAgent;
+  const isiOS = /iPad|iPhone|iPod/.test(ua);
+  const isSafari = /Safari/.test(ua) && !(/CriOS|FxiOS|EdgiOS|Brave/i.test(ua));
+  return isiOS && isSafari;
+}
 
 if (!usdFile) {
-    messageDiv.innerHTML = `
-      <div class="unsupported">
-        No product specified.<br>
-        Please scan a valid product QR code.<br>
-        – Kraftory PH
-      </div>
-    `;
+  document.getElementById('message').innerHTML = `
+    <div class="unsupported">
+      No product specified.<br>
+      Please scan a valid QR code.<br>– Kraftory PH
+    </div>`;
 } else if (isIosSafari()) {
-    // Show instruction text
-    messageDiv.innerHTML = `
-      <div id="ar-instruction">Your product will appear in AR shortly.<br>Or tap below to view now.</div>
-      <button id="view-ar-btn">View in AR</button>
-    `;
-    const btn = document.getElementById('view-ar-btn');
-    btn.onclick = () => { window.location.href = usdFile; };
+  // Preload USDZ with progress
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', usdFile, true);
+  xhr.responseType = 'blob';
 
-    // Auto-redirect after 2 seconds
-    setTimeout(() => { window.location.href = usdFile; }, 2000);
+  xhr.onprogress = function(event) {
+    if (event.lengthComputable) {
+      const percent = Math.round((event.loaded / event.total) * 100);
+      document.getElementById('progress-fill').style.width = percent + '%';
+      document.getElementById('loader').innerText = `Loading your product… ${percent}%`;
+    }
+  };
+
+  xhr.onload = function() {
+    if (this.status === 200) {
+      const blob = this.response;
+      const url = URL.createObjectURL(blob);
+      window.location.href = url; // Launch AR Quick Look immediately
+    } else {
+      document.getElementById('loader').innerText = 'Failed to load product. Please try again.';
+    }
+  };
+
+  xhr.onerror = function() {
+    document.getElementById('loader').innerText = 'Failed to load product. Please try again.';
+  };
+
+  xhr.send();
 
 } else {
-    // Unsupported browser/device
-    messageDiv.innerHTML = `
-      <div class="unsupported">
-        <strong>AR view is limited to iOS Safari.</strong><br>
-        Please open this page on an iPhone or iPad using Safari to view products in AR.<br>
-        – Kraftory PH
-      </div>
-      <button onclick="location.href='index.html'">⬅ Back</button>
-    `;
+  document.getElementById('message').innerHTML = `
+    <div class="unsupported">
+      <strong>AR view is limited to iOS Safari.</strong><br>
+      Please open this page on an iPhone or iPad using Safari to view products in AR.<br>– Kraftory PH
+    </div>
+    <button onclick="location.href='index.html'">⬅ Back</button>`;
 }
 </script>
 
