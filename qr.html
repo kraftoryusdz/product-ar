@@ -53,7 +53,7 @@
   .unsupported {
     font-size:1.1em;
     line-height:1.6em;
-    max-width:300px;
+    max-width:320px;
     background:#f8f8f8;
     border-radius:12px;
     padding:20px;
@@ -86,13 +86,10 @@
 const urlParams = new URLSearchParams(window.location.search);
 const usdFile = urlParams.get('file') || null;
 
-// Check iOS Safari
-function isIosSafari() {
-  const ua = navigator.userAgent;
-  const isiOS = /iPad|iPhone|iPod/.test(ua);
-  const isSafari = /Safari/.test(ua) && !(/CriOS|FxiOS|EdgiOS|Brave/i.test(ua));
-  return isiOS && isSafari;
-}
+const ua = navigator.userAgent;
+const isiOS = /iPad|iPhone|iPod/.test(ua);
+const isSafari = /Safari/.test(ua) && !(/CriOS|FxiOS|EdgiOS|Brave/i.test(ua));
+const isAndroid = /Android/.test(ua);
 
 if (!usdFile) {
   document.getElementById('message').innerHTML = `
@@ -100,17 +97,16 @@ if (!usdFile) {
       No product specified.<br>
       Please scan a valid QR code.<br>– Kraftory PH
     </div>`;
-} else if (isIosSafari()) {
+} else if (isiOS && isSafari) {
+  // iOS Safari: preload USDZ with minimum 3s landing
   let usdLoaded = false;
   let minTimePassed = false;
 
-  // Minimum landing page duration (3 seconds)
   setTimeout(() => {
     minTimePassed = true;
     if (usdLoaded) launchAR();
   }, 3000);
 
-  // Preload USDZ
   const xhr = new XMLHttpRequest();
   xhr.open('GET', usdFile, true);
   xhr.responseType = 'blob';
@@ -146,18 +142,38 @@ if (!usdFile) {
     link.setAttribute('href', window.usdURL);
     document.body.appendChild(link);
     link.click();
-    // Hide landing page after launching
     document.getElementById('message').style.display = 'none';
     document.getElementById('landing-logo').style.display = 'none';
   }
 
-} else {
+} else if (isiOS && !isSafari) {
+  // iOS, not Safari
   document.getElementById('message').innerHTML = `
     <div class="unsupported">
-      <strong>AR view is limited to iOS Safari.</strong><br>
-      Please open this page on an iPhone or iPad using Safari to view products in AR.<br>– Kraftory PH
-    </div>
-    <button onclick="location.href='index.html'">⬅ Back</button>`;
+      To view our products in AR, please open this page in Safari on your iPhone or iPad.<br><br>
+      Your current browser does not support AR Quick Look.<br>
+      If links open automatically in Chrome, Brave, or another browser, please follow these steps:<br>
+      1️⃣ Open <strong>Settings → Safari</strong>.<br>
+      2️⃣ Ensure Safari is set as your default browser.<br>
+      3️⃣ Return to this QR scan and open the link in Safari.<br><br>
+      Thank you! – Kraftory PH
+    </div>`;
+
+} else if (isAndroid) {
+  // Android
+  document.getElementById('message').innerHTML = `
+    <div class="unsupported">
+      AR Quick Look is only supported on iOS Safari.<br>
+      Please use an iPhone or iPad with Safari to view our products in AR.<br>– Kraftory PH
+    </div>`;
+
+} else {
+  // Other devices / desktops
+  document.getElementById('message').innerHTML = `
+    <div class="unsupported">
+      AR Quick Look is only available on iOS Safari.<br>
+      Please use an iPhone or iPad with Safari to view our products in AR.<br>– Kraftory PH
+    </div>`;
 }
 </script>
 
