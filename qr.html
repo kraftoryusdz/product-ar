@@ -79,7 +79,10 @@
 <div id="message">
   <div id="loader">Loading your product…</div>
   <div id="progress-bar"><div id="progress-fill"></div></div>
-  <div id="instruction">Preparing your AR experience…</div>
+  <div id="instruction">
+    Preparing your AR experience…<br>
+    Once AR Quick Look opens, tap the <strong>AR button on the upper right</strong> to see the product in your space and check its actual size and placement.
+  </div>
 </div>
 
 <script>
@@ -98,14 +101,14 @@ if (!usdFile) {
       Please scan a valid QR code.<br>– Kraftory PH
     </div>`;
 } else if (isiOS && isSafari) {
-  // iOS Safari: preload USDZ with minimum 3s landing
+  // iOS Safari: preload USDZ with minimum 10s landing
   let usdLoaded = false;
   let minTimePassed = false;
 
   setTimeout(() => {
     minTimePassed = true;
     if (usdLoaded) launchAR();
-  }, 3000);
+  }, 10000); // 10 seconds
 
   const xhr = new XMLHttpRequest();
   xhr.open('GET', usdFile, true);
