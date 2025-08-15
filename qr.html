@@ -76,12 +76,13 @@
 <body>
 
 <img src="logo.png" id="landing-logo" alt="Kraftory PH Logo">
+
 <div id="message">
   <div id="loader">Loading your product…</div>
   <div id="progress-bar"><div id="progress-fill"></div></div>
   <div id="instruction">
     Preparing your AR experience…<br>
-    Once AR Quick Look opens, tap the <strong>AR button on the upper right</strong> to see the product in your space and check its actual size and placement.
+    <strong>Once AR Quick Look opens, tap the AR button on the upper right</strong> to see the product in your space and check its actual size and placement.
   </div>
 </div>
 
@@ -108,7 +109,7 @@ if (!usdFile) {
   setTimeout(() => {
     minTimePassed = true;
     if (usdLoaded) launchAR();
-  }, 10000); // 10 seconds
+  }, 10000); // 10 seconds minimum
 
   const xhr = new XMLHttpRequest();
   xhr.open('GET', usdFile, true);
@@ -150,28 +151,22 @@ if (!usdFile) {
   }
 
 } else if (isiOS && !isSafari) {
-  // iOS, not Safari
   document.getElementById('message').innerHTML = `
     <div class="unsupported">
       To view our products in AR, please open this page in Safari on your iPhone or iPad.<br><br>
-      Your current browser does not support AR Quick Look.<br>
       If links open automatically in Chrome, Brave, or another browser, please follow these steps:<br>
       1️⃣ Open <strong>Settings → Safari</strong>.<br>
       2️⃣ Ensure Safari is set as your default browser.<br>
       3️⃣ Return to this QR scan and open the link in Safari.<br><br>
       Thank you! – Kraftory PH
     </div>`;
-
 } else if (isAndroid) {
-  // Android
   document.getElementById('message').innerHTML = `
     <div class="unsupported">
       AR Quick Look is only supported on iOS Safari.<br>
       Please use an iPhone or iPad with Safari to view our products in AR.<br>– Kraftory PH
     </div>`;
-
 } else {
-  // Other devices / desktops
   document.getElementById('message').innerHTML = `
     <div class="unsupported">
       AR Quick Look is only available on iOS Safari.<br>
