@@ -20,11 +20,33 @@
     padding:20px;
     color:#333;
   }
-  .logo {
-    max-width:150px;
-    height:auto;
-    margin-bottom:20px;
+
+  /* Logo overlay at top-left */
+  #overlay-logo {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 80px;
+    height: auto;
+    z-index: 1100;
   }
+
+  /* Instruction overlay */
+  #ar-instruction {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    max-width: 220px;
+    font-size: 0.95em;
+  }
+
   .unsupported {
     font-size:1.1em;
     line-height:1.6em;
@@ -34,6 +56,7 @@
     padding:20px;
     box-shadow:0 4px 12px rgba(0,0,0,0.1);
   }
+
   button {
     margin-top:15px;
     padding:10px 20px;
@@ -48,10 +71,11 @@
   button:hover {
     background-color:#e65c00;
   }
+
   #loader {
-    margin-top: 20px;
-    font-size: 1em;
-    color: #666;
+    margin-top:20px;
+    font-size:1em;
+    color:#666;
   }
 </style>
 
@@ -71,7 +95,7 @@
     document.head.appendChild(link);
   }
 
-  // iOS Safari detection
+  // Detect iOS Safari
   function isIosSafari() {
     const ua = navigator.userAgent;
     const isiOS = /iPad|iPhone|iPod/.test(ua);
@@ -81,11 +105,10 @@
 
   if (usdFile) preloadUSDZ(usdFile);
 </script>
-
 </head>
 <body>
 
-<img src="logo.png" alt="Kraftory PH Logo" class="logo">
+<img src="logo.png" id="overlay-logo" alt="Kraftory PH Logo">
 
 <div id="message">
   <div id="loader">Checking your device…</div>
@@ -103,7 +126,13 @@ if (!usdFile) {
       </div>
     `;
 } else if (isIosSafari()) {
-    // Small delay to let preload start, then redirect
+    // Show instruction overlay
+    const instruction = document.createElement('div');
+    instruction.id = 'ar-instruction';
+    instruction.innerText = "Tap the AR icon on the upper-right to view this product in AR";
+    document.body.appendChild(instruction);
+
+    // Small delay to let preload start, then redirect to USDZ
     setTimeout(() => {
       window.location.href = usdFile;
     }, 100); // 100ms delay
