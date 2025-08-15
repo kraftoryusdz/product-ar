@@ -21,7 +21,6 @@
     color:#333;
   }
 
-  /* Logo overlay at top-left */
   #overlay-logo {
     position: fixed;
     top: 10px;
@@ -31,7 +30,6 @@
     z-index: 1100;
   }
 
-  /* Instruction overlay */
   #ar-instruction {
     position: fixed;
     top: 10px;
@@ -74,11 +72,9 @@
 </style>
 
 <script>
-  // Get USDZ file from URL query
   const urlParams = new URLSearchParams(window.location.search);
   const usdFile = urlParams.get('file') || null;
 
-  // Preload USDZ for faster AR Quick Look
   function preloadUSDZ(file) {
     if (!file) return;
     const link = document.createElement('link');
@@ -89,7 +85,6 @@
     document.head.appendChild(link);
   }
 
-  // Detect iOS Safari
   function isIosSafari() {
     const ua = navigator.userAgent;
     const isiOS = /iPad|iPhone|iPod/.test(ua);
@@ -120,27 +115,24 @@ if (!usdFile) {
       </div>
     `;
 } else if (isIosSafari()) {
-    // Show instruction overlay
+    // Instruction overlay
     const instruction = document.createElement('div');
     instruction.id = 'ar-instruction';
     instruction.innerText = "Tap the AR icon on the upper-right to view this product in AR";
     document.body.appendChild(instruction);
 
-    // Show a "View in AR" button
+    // Show button
     messageDiv.innerHTML = `
       <h2>Your product is ready in AR!</h2>
       <button id="view-ar-btn">View in AR</button>
     `;
     const btn = document.getElementById('view-ar-btn');
-    btn.onclick = () => {
-      window.location.href = usdFile;
-    };
+    btn.onclick = () => { window.location.href = usdFile; };
 
-    // Optional: auto-redirect after 2 seconds if you want
-    // setTimeout(() => { window.location.href = usdFile; }, 2000);
+    // Auto-launch after 3 seconds
+    setTimeout(() => { window.location.href = usdFile; }, 3000);
 
 } else {
-    // Unsupported device/browser
     messageDiv.innerHTML = `
       <div class="unsupported">
         <strong>AR view is limited to iOS Safari.</strong><br>
