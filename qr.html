@@ -21,28 +21,18 @@
     color:#333;
   }
 
-  #overlay-logo {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    width: 80px;
+  /* Centered logo */
+  #landing-logo {
+    width: 200px;
+    max-width: 60%;
     height: auto;
-    z-index: 1100;
+    margin-bottom: 20px;
   }
 
   #ar-instruction {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
-    background: rgba(255,255,255,0.95);
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    max-width: 220px;
-    font-size: 0.95em;
+    margin-top: 10px;
+    font-size: 1em;
+    color: #555;
   }
 
   .unsupported {
@@ -97,10 +87,10 @@
 </head>
 <body>
 
-<img src="logo.png" id="overlay-logo" alt="Kraftory PH Logo">
+<img src="logo.png" id="landing-logo" alt="Kraftory PH Logo">
 
 <div id="message">
-  <div id="loader">Checking your device…</div>
+  <div id="loader">Preparing your product…</div>
 </div>
 
 <script>
@@ -115,24 +105,19 @@ if (!usdFile) {
       </div>
     `;
 } else if (isIosSafari()) {
-    // Instruction overlay
-    const instruction = document.createElement('div');
-    instruction.id = 'ar-instruction';
-    instruction.innerText = "Tap the AR icon on the upper-right to view this product in AR";
-    document.body.appendChild(instruction);
-
-    // Show button
+    // Show instruction text
     messageDiv.innerHTML = `
-      <h2>Your product is ready in AR!</h2>
+      <div id="ar-instruction">Your product will appear in AR shortly.<br>Or tap below to view now.</div>
       <button id="view-ar-btn">View in AR</button>
     `;
     const btn = document.getElementById('view-ar-btn');
     btn.onclick = () => { window.location.href = usdFile; };
 
-    // Auto-launch after 3 seconds
-    setTimeout(() => { window.location.href = usdFile; }, 3000);
+    // Auto-redirect after 2 seconds
+    setTimeout(() => { window.location.href = usdFile; }, 2000);
 
 } else {
+    // Unsupported browser/device
     messageDiv.innerHTML = `
       <div class="unsupported">
         <strong>AR view is limited to iOS Safari.</strong><br>
