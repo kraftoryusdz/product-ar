@@ -6,18 +6,27 @@
 <title>Kraftory PH - AR Viewer</title>
 <link rel="icon" href="favicon.png" sizes="512x512">
 <style>
-  body {
+  html, body {
     margin:0;
+    padding:0;
     font-family:sans-serif;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    background-color:#fff;
+    color:#333;
+  }
+  #container {
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
-    text-align:center;
-    min-height:100vh;
-    background-color:#fff;
-    color:#333;
     padding:20px;
+    width:100%;
+    max-width:400px;
   }
   #landing-logo {
     width:200px;
@@ -77,15 +86,16 @@
 </head>
 <body>
 
-<img src="logo.png" id="landing-logo" alt="Kraftory PH Logo">
-
-<div id="message">
-  <div id="loader">Loading your product…</div>
-  <div id="progress-bar"><div id="progress-fill"></div></div>
-  <div id="instruction">
-    Preparing your AR experience…<br>
-    <strong>Once AR Quick Look opens, tap the AR button on the upper right</strong> to view our products right in your space. <br> 
-    See how they look and fit in <strong>your home or office</strong> before you buy.
+<div id="container">
+  <img src="logo.png" id="landing-logo" alt="Kraftory PH Logo">
+  <div id="message">
+    <div id="loader">Loading your product…</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="instruction">
+      Preparing your AR experience…<br>
+      <strong>Once AR Quick Look opens, tap the AR button on the upper right</strong> to view our products right in your space. <br> 
+      See how they look and fit in <strong>your home or office</strong> before you buy.
+    </div>
   </div>
 </div>
 
@@ -98,28 +108,31 @@ const isiOS = /iPad|iPhone|iPod/.test(ua);
 const isSafari = /Safari/.test(ua) && !(/CriOS|FxiOS|EdgiOS|Brave/i.test(ua));
 const isAndroid = /Android/.test(ua);
 
+// Function to show unsupported message with centered logo
+function showUnsupportedMessage(message) {
+  const container = document.getElementById('container');
+  container.innerHTML = `
+    <img src="logo.png" alt="Kraftory PH Logo" style="width:120px; margin-bottom:15px;">
+    <div class="unsupported">${message}</div>
+  `;
+}
+
 if (!usdFile) {
-  document.getElementById('message').innerHTML = `
-    <div class="unsupported">
-      No product specified.<br>
-      Please scan a valid QR code.<br>– Kraftory PH
-    </div>`;
+  showUnsupportedMessage('No product specified.<br>Please scan a valid QR code.<br>– Kraftory PH');
 } else if (isiOS && isSafari) {
   let usdLoaded = false;
   let minTimePassed = false;
   let progress = 0;
   const progressFill = document.getElementById('progress-fill');
 
-  // Minimum landing time 8s
   setTimeout(() => {
     minTimePassed = true;
     if (usdLoaded) launchAR();
-  }, 8000);
+  }, 5000); // Minimum landing page 5s
 
-  // Smooth progress simulation
   const progressInterval = setInterval(() => {
     if (progress < 95) {
-      progress += Math.random() * 2; // increment smoothly
+      progress += Math.random() * 2;
       progressFill.style.width = progress + '%';
     }
   }, 100);
@@ -159,7 +172,6 @@ if (!usdFile) {
   xhr.send();
 
   function launchAR() {
-    // add AR logo overlay
     const arLogo = document.createElement('img');
     arLogo.src = 'logo.png';
     arLogo.id = 'ar-logo';
@@ -177,27 +189,16 @@ if (!usdFile) {
   }
 
 } else if (isiOS && !isSafari) {
-  document.getElementById('message').innerHTML = `
-    <div class="unsupported">
-      To view our products in AR, please open this page in Safari on your iPhone or iPad.<br><br>
-      If links open automatically in Chrome, Brave, or another browser, please follow these steps:<br>
-      1️⃣ Open <strong>Settings → Safari</strong>.<br>
-      2️⃣ Ensure Safari is set as your default browser.<br>
-      3️⃣ Return to this QR scan and open the link in Safari.<br><br>
-      Thank you! – Kraftory PH
-    </div>`;
+  showUnsupportedMessage(`To view our products in AR, please open this page in Safari on your iPhone or iPad.<br><br>
+    If links open automatically in Chrome, Brave, or another browser, follow these steps:<br>
+    1️⃣ Open <strong>Settings → Safari</strong>.<br>
+    2️⃣ Ensure Safari is set as your default browser.<br>
+    3️⃣ Return to this QR scan and open the link in Safari.<br><br>
+    Thank you! – Kraftory PH`);
 } else if (isAndroid) {
-  document.getElementById('message').innerHTML = `
-    <div class="unsupported">
-      AR Quick Look is only supported on iOS Safari.<br>
-      Please use an iPhone or iPad with Safari to view our products in AR.<br>– Kraftory PH
-    </div>`;
+  showUnsupportedMessage('AR Quick Look is only supported on iOS Safari.<br>Please use an iPhone or iPad with Safari to view our products in AR.<br>– Kraftory PH');
 } else {
-  document.getElementById('message').innerHTML = `
-    <div class="unsupported">
-      AR Quick Look is only available on iOS Safari.<br>
-      Please use an iPhone or iPad with Safari to view our products in AR.<br>– Kraftory PH
-    </div>`;
+  showUnsupportedMessage('AR Quick Look is only available on iOS Safari.<br>Please use an iPhone or iPad with Safari to view our products in AR.<br>– Kraftory PH');
 }
 </script>
 
