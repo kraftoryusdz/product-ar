@@ -101,7 +101,16 @@ if (!usdFile) {
       Please scan a valid QR code.<br>– Kraftory PH
     </div>`;
 } else if (isIosSafari()) {
-  // Preload USDZ with progress
+  let usdLoaded = false;
+  let minTimePassed = false;
+
+  // Minimum landing page duration (3 seconds)
+  setTimeout(() => {
+    minTimePassed = true;
+    if (usdLoaded) launchAR();
+  }, 3000);
+
+  // Preload USDZ
   const xhr = new XMLHttpRequest();
   xhr.open('GET', usdFile, true);
   xhr.responseType = 'blob';
@@ -117,19 +126,9 @@ if (!usdFile) {
   xhr.onload = function() {
     if (this.status === 200) {
       const blob = this.response;
-      const url = URL.createObjectURL(blob);
-
-      // Automatically trigger AR Quick Look
-      const link = document.createElement('a');
-      link.setAttribute('rel','ar');
-      link.setAttribute('href', url);
-      document.body.appendChild(link);
-      link.click();
-
-      // Optional: hide landing page after launching
-      document.getElementById('message').style.display = 'none';
-      document.getElementById('landing-logo').style.display = 'none';
-
+      window.usdURL = URL.createObjectURL(blob);
+      usdLoaded = true;
+      if (minTimePassed) launchAR();
     } else {
       document.getElementById('loader').innerText = 'Failed to load product. Please try again.';
     }
@@ -140,6 +139,17 @@ if (!usdFile) {
   };
 
   xhr.send();
+
+  function launchAR() {
+    const link = document.createElement('a');
+    link.setAttribute('rel','ar');
+    link.setAttribute('href', window.usdURL);
+    document.body.appendChild(link);
+    link.click();
+    // Hide landing page after launching
+    document.getElementById('message').style.display = 'none';
+    document.getElementById('landing-logo').style.display = 'none';
+  }
 
 } else {
   document.getElementById('message').innerHTML = `
