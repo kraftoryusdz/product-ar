@@ -28,7 +28,7 @@
   #message {
     display:flex;
     flex-direction:column;
-    align-items:center; /* centers loader, progress, instruction */
+    align-items:center;
     width:100%;
   }
   #loader {
@@ -49,7 +49,7 @@
     height: 100%;
     width: 0%;
     background: #ff6600;
-    transition: width 0.2s;
+    transition: width 0.2s ease-out;
   }
   #instruction {
     margin-top:15px;
@@ -65,18 +65,14 @@
     padding:20px;
     box-shadow:0 4px 12px rgba(0,0,0,0.1);
   }
-  button {
-    margin-top:15px;
-    padding:12px 24px;
-    font-size:1em;
-    border:none;
-    border-radius:8px;
-    background-color:#ff6600;
-    color:white;
-    cursor:pointer;
-    transition: background 0.2s;
+  #ar-logo {
+    position:fixed;
+    top:10px;
+    left:10px;
+    width:60px;
+    z-index:9999;
+    pointer-events:none;
   }
-  button:hover { background-color:#e65c00; }
 </style>
 </head>
 <body>
@@ -87,8 +83,7 @@
   <div id="loader">Loading your product…</div>
   <div id="progress-bar"><div id="progress-fill"></div></div>
   <div id="instruction">
-    Preparing your AR experience…<br>
-    <strong>Once AR Quick Look opens, tap the AR button on the upper right</strong> to view our products right in your space. <br>
+    Tap the AR button (top right) to place our product in your space.<br>
     See how it fits and looks in <strong>your home or office</strong> before buying!
   </div>
 </div>
@@ -109,14 +104,24 @@ if (!usdFile) {
       Please scan a valid QR code.<br>– Kraftory PH
     </div>`;
 } else if (isiOS && isSafari) {
-  // iOS Safari: preload USDZ with minimum 5s landing
   let usdLoaded = false;
   let minTimePassed = false;
+  let progress = 0;
+  const progressFill = document.getElementById('progress-fill');
 
+  // Minimum landing time 8s
   setTimeout(() => {
     minTimePassed = true;
     if (usdLoaded) launchAR();
-  }, 8000); // 8000 ms = 8 seconds
+  }, 8000);
+
+  // Smooth progress simulation
+  const progressInterval = setInterval(() => {
+    if (progress < 95) {
+      progress += Math.random() * 2; // increment smoothly
+      progressFill.style.width = progress + '%';
+    }
+  }, 100);
 
   const xhr = new XMLHttpRequest();
   xhr.open('GET', usdFile, true);
@@ -125,16 +130,20 @@ if (!usdFile) {
   xhr.onprogress = function(event) {
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
-      document.getElementById('progress-fill').style.width = percent + '%';
+      progress = Math.max(progress, percent);
+      progressFill.style.width = progress + '%';
       document.getElementById('loader').innerText = `Loading your product… ${percent}%`;
     }
   };
 
   xhr.onload = function() {
+    clearInterval(progressInterval);
     if (this.status === 200) {
       const blob = this.response;
       window.usdURL = URL.createObjectURL(blob);
       usdLoaded = true;
+      progressFill.style.width = '100%';
+      document.getElementById('loader').innerText = `Loading complete!`;
       if (minTimePassed) launchAR();
     } else {
       document.getElementById('loader').innerText = 'Failed to load product. Please try again.';
@@ -142,17 +151,26 @@ if (!usdFile) {
   };
 
   xhr.onerror = function() {
+    clearInterval(progressInterval);
     document.getElementById('loader').innerText = 'Failed to load product. Please try again.';
   };
 
   xhr.send();
 
   function launchAR() {
+    // add AR logo overlay
+    const arLogo = document.createElement('img');
+    arLogo.src = 'logo.png';
+    arLogo.id = 'ar-logo';
+    document.body.appendChild(arLogo);
+
     const link = document.createElement('a');
     link.setAttribute('rel','ar');
     link.setAttribute('href', window.usdURL);
+    link.setAttribute('ar-scale','auto');
     document.body.appendChild(link);
     link.click();
+
     document.getElementById('message').style.display = 'none';
     document.getElementById('landing-logo').style.display = 'none';
   }
