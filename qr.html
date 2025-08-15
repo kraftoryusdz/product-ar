@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kraftory PH - AR Viewer</title>
 <link rel="icon" type="image/png" href="favicon.png" sizes="512x512">
+
 <style>
   body {
     margin:0;
@@ -17,19 +18,24 @@
     min-height:100vh;
     background-color:#fff;
     padding:20px;
+    color:#333;
   }
   .logo {
-    max-width:200px;
+    max-width:150px;
     height:auto;
     margin-bottom:20px;
   }
   .unsupported {
-    font-size:1.2em;
-    color:#333;
-    line-height:1.5em;
+    font-size:1.1em;
+    line-height:1.6em;
+    max-width:300px;
+    background: #f8f8f8;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
   }
   button {
-    margin-top:20px;
+    margin-top:15px;
     padding:10px 20px;
     font-size:1em;
     border:none;
@@ -37,22 +43,35 @@
     background-color:#ff6600;
     color:white;
     cursor:pointer;
+    transition: background 0.2s;
   }
   button:hover {
     background-color:#e65c00;
   }
+  #loader {
+    margin-top: 20px;
+    font-size: 1em;
+    color: #666;
+  }
 </style>
-</head>
-<body>
-
-<img src="logo.png" alt="Kraftory PH Logo" class="logo">
-
-<div id="message">
-  Loading...
-</div>
 
 <script>
-  // Detect iOS Safari
+  // Get USDZ file from URL query
+  const urlParams = new URLSearchParams(window.location.search);
+  const usdFile = urlParams.get('file') || null;
+
+  // Dynamic preloading for iOS Safari
+  function preloadUSDZ(file) {
+    if (!file) return;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'fetch';
+    link.href = file;
+    link.type = 'model/vnd.usdz+zip';
+    document.head.appendChild(link);
+  }
+
+  // iOS Safari detection
   function isIosSafari() {
     const ua = navigator.userAgent;
     const isiOS = /iPad|iPhone|iPod/.test(ua);
@@ -60,13 +79,22 @@
     return isiOS && isSafari;
   }
 
-  // Get USDZ file from URL query
-  const urlParams = new URLSearchParams(window.location.search);
-  const usdFile = urlParams.get('file') || null;
+  if (usdFile) preloadUSDZ(usdFile);
+</script>
 
-  const messageDiv = document.getElementById('message');
+</head>
+<body>
 
-  if (!usdFile) {
+<img src="logo.png" alt="Kraftory PH Logo" class="logo">
+
+<div id="message">
+  <div id="loader">Checking your device…</div>
+</div>
+
+<script>
+const messageDiv = document.getElementById('message');
+
+if (!usdFile) {
     messageDiv.innerHTML = `
       <div class="unsupported">
         No product specified.<br>
@@ -74,20 +102,21 @@
         – Kraftory PH
       </div>
     `;
-  } else if (isIosSafari()) {
-    // Redirect to USDZ to launch AR
-    window.location.href = usdFile;
-  } else {
-    // Unsupported browser/device
+} else if (isIosSafari()) {
+    // Small delay to let preload start, then redirect
+    setTimeout(() => {
+      window.location.href = usdFile;
+    }, 100); // 100ms delay
+} else {
     messageDiv.innerHTML = `
       <div class="unsupported">
-        AR view is limited to iOS Safari.<br>
+        <strong>AR view is limited to iOS Safari.</strong><br>
         Please open this page on an iPhone or iPad using Safari to view products in AR.<br>
         – Kraftory PH
       </div>
       <button onclick="location.href='index.html'">⬅ Back</button>
     `;
-  }
+}
 </script>
 
 </body>
